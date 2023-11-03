@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="7e3e574f-539b-45ef-b655-2eab89221731" name="更改" comment="">
+      <change afterPath="$PROJECT_DIR$/../app/Services/User/AddressServices.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/tests/CreatesApplication.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/tests/Feature/AddressTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/tests/Feature/AuthTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/tests/Feature/CatalogTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/tests/Feature/UserTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/tests/Http/Controllers/TestControllerTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/tests/Http/Controllers/Wx/BrandControllerTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/tests/Http/Controllers/Wx/CartControllerTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/tests/Http/Controllers/Wx/CouponControllerTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/tests/Http/Controllers/Wx/GoodsControllerTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/tests/Http/Controllers/Wx/GrouponControllerTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/tests/Http/Controllers/Wx/OrderControllerTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/tests/TestCase.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/tests/Unit/AuthTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/tests/Unit/BooleanSoftDeleteTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/tests/Unit/CartTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/tests/Unit/CouponTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../tests/tests/Unit/OrderTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/Console/Kernel.php" beforeDir="false" afterPath="$PROJECT_DIR$/../app/Console/Kernel.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/Exceptions/Handler.php" beforeDir="false" afterPath="$PROJECT_DIR$/../app/Exceptions/Handler.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/Http/Controllers/Controller.php" beforeDir="false" afterPath="$PROJECT_DIR$/../app/Http/Controllers/Controller.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/Http/Kernel.php" beforeDir="false" afterPath="$PROJECT_DIR$/../app/Http/Kernel.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/Http/Middleware/Authenticate.php" beforeDir="false" afterPath="$PROJECT_DIR$/../app/Http/Middleware/Authenticate.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/Http/Middleware/VerifyCsrfToken.php" beforeDir="false" afterPath="$PROJECT_DIR$/../app/Http/Middleware/VerifyCsrfToken.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/Models/User.php" beforeDir="false" afterPath="$PROJECT_DIR$/../app/Models/User/User.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/Providers/EventServiceProvider.php" beforeDir="false" afterPath="$PROJECT_DIR$/../app/Providers/EventServiceProvider.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/Providers/RouteServiceProvider.php" beforeDir="false" afterPath="$PROJECT_DIR$/../app/Providers/RouteServiceProvider.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/../composer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../config/app.php" beforeDir="false" afterPath="$PROJECT_DIR$/../config/app.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../config/auth.php" beforeDir="false" afterPath="$PROJECT_DIR$/../config/auth.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../config/cors.php" beforeDir="false" afterPath="$PROJECT_DIR$/../config/cors.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../config/database.php" beforeDir="false" afterPath="$PROJECT_DIR$/../config/database.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../database/factories/UserFactory.php" beforeDir="false" afterPath="$PROJECT_DIR$/../database/factories/UserFactory.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.htaccess" beforeDir="false" afterPath="$PROJECT_DIR$/.htaccess" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/index.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../routes/web.php" beforeDir="false" afterPath="$PROJECT_DIR$/../routes/web.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tests/TestCase.php" beforeDir="false" afterPath="$PROJECT_DIR$/../tests/TestCase.php" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings">
+    <execution />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectId" id="2XePAm5zzIuZ0LBIYratnRTLIIZ" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "F:/xuexi/docker/laradock-src/laravel-study/public",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="应用程序级" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="默认任务">
+      <changelist id="7e3e574f-539b-45ef-b655-2eab89221731" name="更改" comment="" />
+      <created>1698986430086</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1698986430086</updated>
+      <workItem from="1698986431292" duration="8000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
