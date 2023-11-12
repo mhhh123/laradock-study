@@ -3,7 +3,8 @@ namespace App\Services\User;
 
 use App\CodeResponse;
 use App\Exceptions\BusinessException;
-use App\Models\User;
+
+use App\Models\User\User;
 use App\Notifications\VerificationCode;
 use App\Services\BaseServices;
 use Carbon\Carbon;
@@ -18,7 +19,7 @@ class UserServices extends BaseServices
 {
 
     public function getUserById($id){
-        return User\User::query()->find($id);
+        return User::query()->find($id);
     }
 
     public static function getInstance()
@@ -38,26 +39,27 @@ class UserServices extends BaseServices
         if(empty($userIds)){
             return collect([]);
         }
-        return User\User::query()->whereIn('id', $userIds)->get();
+        return User::query()->whereIn('id', $userIds)->get();
     }
     /**
      *根据用户名获取用户
      * @param $username
-     * @return User\User|null|Model
+     * @return User|null|Model
      */
     public function getByusername($username)
     {
-        return User\User::query()->where('username', $username)
-            ->where('deleted', 0)->first();
+        return User::query()
+            ->where('username', $username)
+            ->first();
     }
 
     /**
      * @param $mobile
-     * @return User\User|null|Model
+     * @return User|null|Model
      */
     public function getByMobile($mobile)
     {
-        return User\User::query()->where('mobile',$mobile)->first();
+        return User::query()->where('mobile',$mobile)->first();
     }
     /**
      *
@@ -82,18 +84,19 @@ class UserServices extends BaseServices
     /**
      * @param string $mobile
      * @param string $code
-     * @return array|int
+     * @return void
      */
     public function sendCaptchaMsg(string $mobile, string $code)
     {
-        if(app()->environment('testing')) {
-            return 1;
+        if (app()->environment('testing')) {
+            return;
         }
+
+        // 发送短信
         Notification::route(
             EasySmsChannel::class,
-            new PhoneNumber($mobile, 86)
+            new \Overtrue\EasySms\PhoneNumber($mobile, 86)
         )->notify(new VerificationCode($code));
-        return CodeResponse::SUCCESS;
     }
 
     /**
@@ -102,28 +105,35 @@ class UserServices extends BaseServices
      * @return bool
      * @throws BusinessException
      */
-    public function checkCaptcha(string $mobile,string $code){
-        if (!app()->environment('production')){
-            return  true;
-        }
-        $key='register_captcha_'.$mobile;
-        $isPass=$code ===Cache::get($key);
-        if ($isPass){
+    public function checkCaptcha(string $mobile, string $code)
+    {
+        $key = 'register_captcha_' . $mobile;
+        $isPass = $code === Cache::get($key);
+        if ($isPass) {
             Cache::forget($key);
             return true;
-        }else{
+        } else {
             throw new BusinessException(CodeResponse::AUTH_CAPTCHA_UNMATCH);
         }
     }
 
     /**
+     * 设置手机短信验证码
      * @param string $mobile
-     * @return int
+     * @return string
      * @throws \Exception
      */
-    public function setCaptcha(string $mobile){
-        $code =random_int(100000, 999999);
-        Cache::put('register_captcha_'.$mobile, $code, 600);
+    public function setCaptcha(string $mobile)
+    {
+        // 随机生成6位验证码
+        $code = random_int(100000, 999999);
+        if (!app()->environment('production')) {
+            $code = 111111;
+        }
+
+        // 保存手机号和验证码的关系
+        $code = strval($code);
+        Cache::put('register_captcha_' . $mobile, $code, 600);
         return $code;
     }
 }

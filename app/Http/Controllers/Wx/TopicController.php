@@ -41,7 +41,7 @@ class TopicController extends WxController
         $userHasCollect = 0;
         $userId = $this->userId();
 		if ($userId) {
-            $userHasCollect = CollectServices::getInstance()->count($id,Constant::COLLECT_TYPE_TOPIC, $userId);
+            $userHasCollect = CollectServices::getInstance()->count($id,Constant\::COLLECT_TYPE_TOPIC, $userId);
 		}
 
         return $this->success(compact('topic', 'goods', 'userHasCollect'));

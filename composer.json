@@ -12,7 +12,10 @@
         "laravel/tinker": "^2.8",
         "leonis/easysms-notification-channel": "^2.0",
         "overtrue/easy-sms": "^2.5",
-        "tymon/jwt-auth": "^2.0"
+        "tymon/jwt-auth": "^2.0",
+        "yansongda/laravel-pay": "~3.5.0",
+        "yansongda/pay": "~3.5.0",
+        "ext-curl": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.13",

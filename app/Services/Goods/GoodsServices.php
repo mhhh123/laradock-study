@@ -20,6 +20,10 @@ class GoodsServices extends BaseServices
     /**
      * @throws \App\Exceptions\BusinessException
      */
+    public function getGoodListByvalue($valueId){
+        return Goods::query()->where('id',$valueId)->get();
+    }
+
     public function queryByNew()
     {
         $columns = ['id', 'name', 'brief', 'pic_url', 'is_new', 'is_hot', 'counter_price', 'retail_price'];
@@ -42,24 +46,24 @@ class GoodsServices extends BaseServices
         return $goodsList['data'] ?? [];
     }
 
-    public function getGoodslistByIds(array $ids){
+    public function getGoodslistByIds(array $ids,$columns){
         if(empty($ids)){
             return collect();
         }
-        return Goods::query()->whereIn('id',$ids)->get();
+        return Goods::query()->whereIn('id',$ids)->get($columns);
     }
 
     public function getGoods($id){
         return Goods::query()->find($id);
     }
 
-    public function getGoodsAttribute(int $goodId){
-        return GoodsAttribute::query()->where('goods_id',$goodId)
+    public function getGoodsAttribute(int $goodsId){
+        return GoodsAttribute::query()->where('goods_id',$goodsId)
         ->get();
     }
 
-    public function getGoodsSpecification(int $gooodsId){
-        $spec= GoodsSpecification::query()->where('goods_id',$gooodsId)
+    public function getGoodsSpecification(int $goodsId){
+        $spec= GoodsSpecification::query()->where('goods_id',$goodsId)
         ->get()->groupBy('specification');
         return $spec->map(function ($v,$k){
             return ['name'=>$k, 'valueList'=>$v];

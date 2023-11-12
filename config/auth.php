@@ -41,13 +41,13 @@ return [
         'provider' => 'users',
         ],
         'api' => [
-            'driver' => 'token',
+            'driver' => 'jwt',
             'provider' => 'users',
-            'hash' => false,
+            //'hash' => false,
         ],
         'web'=>[
             'driver'=>'session',
-            'provider'=>'users'
+            'provider'=>'users',
         ]
     ],
 

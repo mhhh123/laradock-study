@@ -34,7 +34,7 @@ class BrandServices extends BaseServices
      * @param $order
      *@return LengthAwarePaginator
      */
-    public function getBrandList(int $page, int $limit, $sort, $order ){
+    public function getBrandList(int $page, int $limit, $sort, $order){
         $query=Brand::query();
         if (!empty($sort)&&!empty($order)){
             $query->orderBy($sort, $order);

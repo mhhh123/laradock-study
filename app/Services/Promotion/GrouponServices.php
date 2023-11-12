@@ -14,7 +14,8 @@ class GrouponServices extends BaseServices
 {
 
     public function getGrouponRules(PageInput $page,$columns=['*']){
-       return GrouponRules::query()->whereStatus(Constant::GROUP_RULE_STATUS_ON)
+       return GrouponRules::query()
+           ->whereStatus(Constant::GROUP_RULE_STATUS_ON)
             ->orderBy($page->sort,$page->order)
             ->paginate($page->limit,$columns,'page',$page->page);
     }
@@ -146,5 +147,10 @@ class GrouponServices extends BaseServices
 
     public function createGrouponShareImage(){
         return '';
+    }
+
+    public function getGrouponOrderInOrderIds($orderIds)
+    {
+        return Groupon::query()->whereIn('order_id', $orderIds)->pluck('order_id')->toArray();
     }
     }

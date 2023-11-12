@@ -17,7 +17,8 @@ class GrouponController extends WxController
         $list=GrouponServices::getInstance()->getGrouponRules($page);
         $rules=collect($list->items());
         $goodsId=$rules->pluck('goods_id')->toArray();
-        $goodsList=GoodsServices::getInstance()->getGoodslistByIds($goodsId);
+        $goodsList=GoodsServices::getInstance()->getGoodslistByIds($goodsId)->keyBy('id');
+
         $voList=$rules->map(function (GrouponRules $rule)use ($goodsList){
             $goods=$goodsList->get($rule->goods_id);
             return [

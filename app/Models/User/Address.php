@@ -66,7 +66,8 @@ class Address extends BaseModel
      * @var array<string, string>
      */
     protected $casts = [
-        'deleted'=>'boolean'
+        'deleted'=>'boolean',
+        'is_default' => 'boolean',
     ];
 
 }

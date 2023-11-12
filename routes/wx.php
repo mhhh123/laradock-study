@@ -26,7 +26,11 @@ Route::prefix('t')->group(function () {
     });
 });
 
+//帮组菜单
+Route::get('issue/list',[\App\Http\Controllers\Wx\IssueController::class,'list']);
 
+
+Route::get('auth/header',[AuthController::class,'header']);
 Route::get('home/index', [\App\Http\Controllers\Wx\HomeController::class, 'index']);
 Route::get('home/redirectShareUrl', [\App\Http\Controllers\Wx\HomeController::class, 'redirectShareUrl'])->name('home.redirectShareUrl');
 Route::get('home/test', [\App\Http\Controllers\Wx\HomeController::class,'test']);
@@ -90,9 +94,20 @@ Route::post('auth/captcha', [AuthController::class,'captcha']);//?
 Route::post('order/submit',[OrderController::class,'submit']);//*
 Route::post('order/cancel',[OrderController::class,'cancel']);//*
 Route::get('order/detail',[OrderController::class,'detail']);//*
-
+Route::any('order/list',[OrderController::class,'list']);
+Route::post('order/h5pay', [OrderController::class,'h5pay']); // 微信支付 - h5
+Route::post('order/wxNotify', [OrderController::class,'wxNotify']); // 微信支付回调
+Route::post('order/h5alipay', [OrderController::class,'h5alipay']); // 支付宝支付 - h5
+Route::post('order/alipayNotify', [OrderController::class,'alipayNotify']); // 支付宝支付回调
+Route::get('order/alipayReturn', [OrderController::class,'alipayReturn']);
+Route::post('order/prepay',[OrderController::class,'prepay']);
 Route::get('auth/user',[AuthController::class,'user']);
 
+Route::post('collect/addordelete',[\App\Http\Controllers\Wx\CollectController::class,'addOrDeleted']);
+Route::any('collect/list',[\App\Http\Controllers\Wx\CollectController::class,'list']);
+Route::get('footprint/list',[\App\Http\Controllers\Wx\FootPrintController::class,'list']);
+Route::get('user/test',[\App\Http\Controllers\Wx\UserController::class,'test']);
+Route::get('user/test2',[\App\Http\Controllers\Wx\UserController::class,'test2']);
 Route::group([
 
     'middleware' => 'wx',
@@ -100,7 +115,7 @@ Route::group([
 
 ], function ($router) {
 
-    Route::get('login', [\App\Http\Controllers\ApiController::class,'login']);
+    Route::post('login', [\App\Http\Controllers\ApiController::class,'login']);
     Route::post('logout', [\App\Http\Controllers\ApiController::class,'logout']);
     Route::post('refresh', [\App\Http\Controllers\ApiController::class,'refresh']);
     Route::post('me', [\App\Http\Controllers\ApiController::class,'me']);

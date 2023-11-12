@@ -3,63 +3,71 @@ namespace App\Http\Controllers\Wx;
 
 use App\CodeResponse;
 
+use App\Exceptions\BusinessException;
+use App\Inputs\AddressInput;
 use App\Models\User\Address;
 use App\Services\User\AddressServices;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * 地址
+ * Class AddressController
+ * @package App\Http\Controllers\Wx
+ */
 class AddressController extends WxController
 {
-    /**获取用户地址
-     * @return \Illuminate\Http\JsonResponse
+    /**
+     * 获取用户地址列表
+     * @return JsonResponse
      */
-    public function list(){
-
-        $list=AddressServices::getInstance()->getAddressListByUserId($this->user()->id);
-        return $this->successpaginate($list);
-//        $list->map(function (Address $address){
-//                $address=$address->toArray();
-//                $item=[];
-//                foreach ($address as $key=>$value){
-//                    $key=lcfirst(\Illuminate\Support\Str::studly($key));
-//                    $item[$key]=$value;
-//                }
-//                    return $item;
-//        });
-//        return $this->success([
-//            'total'=>$list->count(),
-//            'page'=>1,
-//            'list'=>$list->toArray(),
-//            'pages'=>1
-//
-//        ]);
+    public function list()
+    {
+        $list = AddressServices::getInstance()->getAddressListByUserId($this->user()->id);
+        return $this->successPaginate($list);
     }
 
-    /**收货地址详情
+    /**
+     * 获取收货地址详情
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
+     * @throws BusinessException
      */
-    public function detail(Request $request){
-        $id = $request->input('id', 0);
-        $address = AddressServices::getInstance()->getAddress($this->user()->id, $id);
-        if (is_null($address)) {
-            $this->fail(CodeResponse::PARAM_ILLEGAL);
+    public function detail(Request $request)
+    {
+        $id = $this->verifyId('id', 0);
+        $detail = AddressServices::getInstance()->getAddress($this->user()->id, $id);
+        if (empty($detail)) {
+            return $this->badArgumentValue();
         }
-        return $this->success($address);
+
+        return $this->success($detail);
     }
 
-   // public function save(){}
-
-    /**地址删除
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \App\Exceptions\BusinessException
+    /**
+     * 保存收货地址
+     * @return JsonResponse
+     * @throws BusinessException
      */
-    public function delete(Request $request){
-        $id=$request->input('id',0);
-        if(empty($id)&&!is_numeric($id)){
-            return $this->fail(CodeResponse::PARAM_ILLEGAL);
-        }
-        AddressServices::getInstance()->delete($this->user()->id,$id);
+    public function save()
+    {
+        $input = AddressInput::new();
+        $address = AddressServices::getInstance()
+            ->saveAddress($this->userId(), $input);
         return $this->success();
     }
+
+    /**
+     * 删除地址
+     * @param Request $request
+     * @return JsonResponse
+     * @throws BusinessException
+     */
+    public function delete(Request $request)
+    {
+        $id = $this->verifyId('id', 0);
+        AddressServices::getInstance()->delete($this->user()->id, $id);
+        return $this->success();
+    }
+
 }

@@ -25,7 +25,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Collect whereValueId($value)
  * @mixin \Eloquent
  */
-class Collect extends Model
+class Collect extends BaseModel
 {
 
     protected $table='collect';
@@ -34,7 +34,7 @@ class Collect extends Model
      * @var array
      */
     protected $fillable = [
-
+        'user_id','value_id','type'
     ];
 
     /**

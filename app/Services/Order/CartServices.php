@@ -41,16 +41,23 @@ class CartServices extends BaseServices
      * @throws \App\Exceptions\BusinessException
      */
     public function getCheckedCartList($userId,$cartId=null){
-        if (empty($cartId)){
-            $checkedGoodsList=$this->getCheckedCarts($userId);
-        }else {
-            $cart = $this->getCartByid($userId, $cartId);
-            if (empty($cart)) {
-                return $this->throwBusinessException(CodeResponse::PARAM_ILLEGAL);
+        $list = $this->getCartList($userId);
+        $goodsIds = $list->pluck('goods_id')->toArray();
+        $goodsList = GoodsServices::getInstance()
+            ->getGoodsListByIds($goodsIds)->keyBy('id');
+        $invalidCartIds = [];
+        $list = $list->filter(function (Cart $cart) use ($goodsList, &$invalidCartIds) {
+            /** @var Goods $goods */
+            $goods = $goodsList->get($cart->goods_id);
+            $isValid = !empty($goods) && $goods->is_on_sale;
+            if (!$isValid) {
+                $invalidCartIds[] = $cart->id;
             }
-            $checkedGoodsList = collect([$cart]);
-        }
-        return $checkedGoodsList;
+
+            return $isValid;
+        });
+        $this->deleteCartList($invalidCartIds);
+        return $list;
     }
 
     public function getCheckedCarts($userId){
@@ -187,16 +194,18 @@ class CartServices extends BaseServices
         if ($number>$product->number){
             return $this->throwBusinessException(CodeResponse::GOODS_NO_STOCK);
         }
+
         $cart=Cart::new();
         $cart->goods_sn=$goods->goods_sn;
         $cart->goods_name=$goods->name;
         $cart->pic_url=$product->url?:$goods->pic_url;
+        $cart->price = $product->price;
         $cart->specifications=$product->specifications;
         $cart->user_id=$userId;
         $cart->checked=true;
         $cart->number=$number;
         $cart->goods_id=$goods->id;
-        $cart->product_id=$goods->product->id;
+        $cart->product_id=$product->id;
         $cart->save();
         return $cart;
     }

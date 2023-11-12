@@ -28,10 +28,10 @@ class ExpressServices extends BaseServices{
     const APP_KEY='588a2e96-d957-xxxx-8937-13547c4a5656';
     const APP_URL='http://api.kdniao.com/Ebusiness/EbusinessOrderHandle.aspx';
 
-    /**查询订单物流轨迹
+    /**
      * @param $com
      * @param $code
-     * @return mixed
+     * @return string
      */
     function getOrderTraces($com,$code){
         $requestData="{'OrderCode':'','ShipperCode':'YTO','LogisticCode':'12345678'}";

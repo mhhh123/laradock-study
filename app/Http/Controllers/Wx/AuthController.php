@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Wx;
 
 use App\CodeResponse;
+use App\Exceptions\BusinessException;
 use App\Models\User;
 use App\Notifications\VerificationCode;
 use App\Services\User\UserServices;
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 use Leonis\Notifications\EasySms\Channels\EasySmsChannel;
@@ -22,19 +24,11 @@ class AuthController extends WxController
 {
     protected $only=['info','profile'];
 
-    /**
-     *
-     *
-     */
-    public function __construct()
-    {
-        $this->middleware('auth:wx');
-    }
-
     public function user()
     {
        $user=Auth::guard('wx')->user();
        return $this->success($user);
+
     }
 
     /**
@@ -43,7 +37,8 @@ class AuthController extends WxController
      */
     public function info()
     {
-        $user = $this->user();
+        $user = auth('wx')->user();
+
         return $this->success([
             'nickName' => $user->nickname,
             'avatar' => $user->avatar,
@@ -61,7 +56,7 @@ class AuthController extends WxController
         $user=$this->user();
         $avatar=$request->input('avatar');
         $gender=$request->input('gender');
-        $nickname=$request->input('nickename');
+        $nickname=$request->input('nickname');
 
         if(!empty($avatar)){
             $user->avatar=$avatar;
@@ -78,6 +73,8 @@ class AuthController extends WxController
 
 
     /**登出
+     * 1.输入用户名通过用户名判定用户是否存在
+     * 2.
      * @param Request $request
      * @return JsonResponse
      */
@@ -98,20 +95,22 @@ class AuthController extends WxController
         }
 
         //对密码进行验证
-        $isPass= Hash::check($password, $user->getAuthPassword());
+        $isPass= Hash::check($password,$user->getAuthPassword());
         if (!$isPass){
             return $this->fail(CodeResponse::AUTH_INVALID_ACCOUNT);
         }
 
         //更新登录信息
         $user->last_login_time=now()->toDateTimeString();
-        $user->last_login_ip=$request->getClientIP() ;
+        $user->last_login_ip=$request->getClientIp() ;
         if(!$user->save()) {
             return $this->fail(CodeResponse::UPDATED_FAIL);
         }
+
         //获取token
         $token=Auth::guard('wx')->login($user);
         //组装数据并返回
+
         return $this->success([
             'token'=>$token ,
             'userInfo'=>[
@@ -123,8 +122,8 @@ class AuthController extends WxController
 
     /**密码重置
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     *
+     * @return JsonResponse
+     * @throws BusinessException
      */
     public function reset(Request $request)
     {
@@ -162,34 +161,39 @@ class AuthController extends WxController
      */
     public function regCaptcha(Request $request)
     {
-        //获取手机号
         $mobile = $request->input('mobile');
-        //验证手机号是否合法
-        if (empty($username) | empty($password) | empty($mobile) | empty('$code')) {
+        // 验证手机号是否合法
+        if (empty($mobile)) {
             return $this->fail(CodeResponse::PARAM_ILLEGAL);
         }
-        $validator = Validator::make(['mobile' => $mobile], ['mobile' => 'regex:/^1[0-9]{10}$']);
+
+        $validator = Validator::make(['mobile' => $mobile], ['mobile' => 'regex:/^1[0-9]{10}$/']);
         if ($validator->fails()) {
             return $this->fail(CodeResponse::AUTH_INVALID_MOBILE);
         }
-        $user=UserServices::getInstance()->getBymobile($mobile);
+
+        // 验证手机号是否已注册
+        $user = UserServices::getInstance()->getByMobile($mobile);
         if (!is_null($user)) {
             return $this->fail(CodeResponse::AUTH_MOBILE_REGISTERED);
         }
-        $code = random_int(10000, 999999);
-        //防刷验证，一分钟只能请求一次 ,一天只能请求10次
-        $lock = Cache::add('register_capthca_lock' . $mobile, 1, 60);
+
+        // 防刷验证 一分钟内只能请求1次，当天只能请求10次
+        $lock = Cache::add('register_captcha_lock_' . $mobile, 1, 60);
         if (!$lock) {
             return $this->fail(CodeResponse::AUTH_CAPTCHA_FREQUENCY);
         }
+
         $isPass = UserServices::getInstance()->checkMobileSendCaptchaCount($mobile);
         if (!$isPass) {
-            return $this->fail(CodeResponse::AUTH_CAPTCHA_FREQUENCY);
+            return $this->fail(CodeResponse::AUTH_CAPTCHA_FREQUENCY, '验证码当天发送不能超过10次');
         }
-        //保存手机号和验证码的关系
-        Cache::put('register_captcha_' . $mobile, $code, 600);
+
+        // 随机生成6位验证码 并 保存手机号和验证码的关系
+        $code = UserServices::getInstance()->setCaptcha($mobile);
+        // 发送短信
         UserServices::getInstance()->sendCaptchaMsg($mobile, $code);
-        return $this->fail(CodeResponse::SUCCESS);
+        return $this->success($code);
     }
 
     /**注册
@@ -204,7 +208,7 @@ class AuthController extends WxController
         $mobile=$request->input('mobile');
         $code=$request->input('code');
         //验证参数是否为空
-        if (empty($username)|empty($password)|empty($mobile)|empty('$code')){
+        if (empty($username)|empty($password)|empty($mobile)|empty($code)){
             return  $this->fail(CodeResponse::PARAM_ILLEGAL);
         }
         //验证用户已存在
@@ -212,7 +216,7 @@ class AuthController extends WxController
         if (!is_null($username)){
             return $this->fail(CodeResponse::AUTH_NAME_REGISTERED);
         }
-        $validator=Validator::make(['mobile'=>$mobile],['mobile'=>'regex:/^1[0-9]{10}$']);
+        $validator=Validator::make(['mobile'=>$mobile],['mobile'=>'regex:/^1[0-9]{10}$/']);
         if ($validator->fails()){
             return $this->fail(CodeResponse::AUTH_INVALID_MOBILE);
         }
@@ -223,7 +227,7 @@ class AuthController extends WxController
         //随机生成6位验证码
         $code=random_int(10000,999999);
         //防刷验证，一分钟只能请求一次 ,一天只能请求10次
-        $lock=Cache::put('register_capthca_'.$mobile, $code,'600');
+        $lock=Cache::put('register_captcha_'.$mobile, $code,'600');
         if(!$lock){
             return $this->fail(CodeResponse::AUTH_CAPTCHA_FREQUENCY);
         }

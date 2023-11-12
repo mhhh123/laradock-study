@@ -134,8 +134,6 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
     public function getJWTCustomClaims()
     {
         return [
-            'iss' => env('JWT_ISSUER'),
-            'userId' => $this->getKey(),
         ];
     }
 }

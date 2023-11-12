@@ -59,7 +59,7 @@ trait VerifyRequestInput{
      * @throws BusinessException
      */
     public function verifyPositiveInteger($key, $default=null){
-        return $this->verifyData($key, $default,'integer|min1');
+        return $this->verifyData($key, $default,'integer|min:1');
     }
 
 
@@ -91,7 +91,7 @@ trait VerifyRequestInput{
             $key=>$rule
         ]);
         if ($validator->fails()){
-            throw new BusinessException(CodeResponse::PARAM_ILLEGAL);
+            throw new BusinessException(CodeResponse::PARAM_VALUE_ILLEGAL);
         }
         return $value;
 

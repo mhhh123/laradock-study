@@ -55,7 +55,8 @@ class GoodsController extends WxController{
      * @throws \App\Exceptions\BusinessException
      */
     public function list(){
-        $input=GoodsListInput::new('add');
+        $input=GoodsListInput::new();
+
         if ($this->isLogin() && !empty($keyword)){
             SearchHistoryServices::getInstance()->save($this->userId(),$keyword,Constant::SEARCH_HISTORY_FROM_WX) ;
         }
@@ -75,14 +76,17 @@ class GoodsController extends WxController{
         public function detail(Request $request)
         {
             $id = $request->input('id');
-            if (empty($id)) {
-                return $this->fail(CodeResponse::PARAM_ILLEGAL);
-            }
             $info = GoodsServices::getInstance()->getGoods($id);
             if (empty($info)) {
-                return $this->fail(CodeResponse::PARAM_ILLEGAL);
+                return $this->fail(CodeResponse::PARAM_VALUE_ILLEGAL);
             }
+            if (empty($id)) {
+                return $this->fail(CodeResponse::PARAM_VALUE_ILLEGAL);
+            }
+
+            //商品属性
             $attr = GoodsServices::getInstance()->getGoodsAttribute($id);
+            //商品规格
             $spec = GoodsServices::getInstance()->getGoodsSpecification($id);
 
             $product = GoodsServices::getInstance()->getGoodsProduct($id);

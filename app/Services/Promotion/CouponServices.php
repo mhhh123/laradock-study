@@ -8,6 +8,7 @@ use App\Inputs\PageInput;
 use App\Models\Order\Cart;
 use App\Models\Promotion\Coupon;
 use App\Models\Promotion\CouponUser;
+use App\Models\Promotion\Groupon;
 use App\Services\BaseServices;
 use Carbon\Carbon;
 
@@ -56,8 +57,8 @@ class CouponServices extends BaseServices
             return null;
         }
 
-        $couponUSers = $this->getMeetPriceCouponAndSort($userId, $price);
-        $availableCouponLenth=$couponUSers->count();
+        $couponUsers = $this->getMeetPriceCouponAndSort($userId, $price);
+        $availableCouponLenth=$couponUsers->count();
         if (!empty($couponId)) {
             $coupon = $this->getCoupon($couponId);
             $couponUser = $this->getCouponUserByCouponId($userId,$couponId);
@@ -66,7 +67,7 @@ class CouponServices extends BaseServices
                 return $couponUser;
             }
         }
-        return $couponUSers->frist();
+        return $couponUsers->first();
     }
     /**
      * @param $id
@@ -137,20 +138,17 @@ class CouponServices extends BaseServices
 
         public function getCoupons(array $ids,$columns=['*']){
                 return Coupon::query()->whereIn('id',$ids)
-
                     ->get($columns);
 }
 
         public function countCoupon($couponId){
                 return CouponUser::query()->where('coupon_id',$couponId)
-
                     ->count('id');
             }
 
         public function countCouponByUserId($userId, $couponId){
             return CouponUser::query()->where('coupon_id',$couponId)
                 ->where('user_id',$userId)
-
                 ->count('id');
         }
 
@@ -159,7 +157,6 @@ class CouponServices extends BaseServices
             return  Coupon::query()
                 ->where('type',Constant::Type_COMMON)
                 ->where('status',Constant::STATUS_NORMAL)
-
                 ->orderBy($page->sort,$page->order)
                 ->paginate($page->limit,$columns,'page',$page->page);
         }
@@ -179,56 +176,57 @@ class CouponServices extends BaseServices
      * @return bool|void
      * @throws BusinessException
      */
-        public function rececive($userId,$couponId){
-        //获取优惠卷id
-            $coupon = CouponServices::getInstance()->getCoupon($couponId);
-            if (is_null($coupon)) {
-                $this->throwBusinessException(CodeResponse::PARAM_ILLEGAL);
-            }
+    public function receive($userId, $couponId)
+    {
+        $coupon = CouponServices::getInstance()->getCoupon($couponId);
+        if (is_null($coupon)) {
+            $this->throwBusinessException(CodeResponse::PARAM_ILLEGAL);
+        }
 
-            //判断优惠卷的总数是否大于0大于则获取优惠卷数量
-            if ($coupon->total > 0) {
-                $fetchedCount = CouponServices::getInstance()->countCoupon($couponId);
-                if ($fetchedCount >= $coupon->total) {
-                    $this->throwBusinessException(CodeResponse::COUPON_EXCEED_LIMIT);
-                }
-                //判断限领优惠卷的数量
-                if ($coupon->limit > 0) {
-                    $userFetchedCount = CouponServices::getInstance()->countCouponByUserId($userId, $couponId);
-                    if ($userFetchedCount >= $coupon->limit) {
-                        $this->throwBusinessException(CodeResponse::COUPON_EXCEED_LIMIT);
-                    }
-                }
-
-                if ($coupon->type != Constant::Type_COMMON) {
-                    $this->throwBusinessException(CodeResponse::COUPON_RECEIVE_FAIL);
-                }
-
-                if ($coupon->status == Constant::STATUS_OUT) {
-                    $this->throwBusinessException(CodeResponse::COUPON_EXCEED_LIMIT);
-                }
-                if ($coupon->status == Constant::STATUS_EXPIRED) {
-                    $this->throwBusinessException(CodeResponse::COUPON_EXCEED_LIMIT);
-                }
-
-
-                $couponUser= CouponUser::new();
-                if ($coupon->time_type == Constant::Type_REGISTER) {
-                    $startTime = $coupon->start_time;
-                    $endTime = $coupon->end_time;
-                } else {
-                    $startTime = Carbon::now();
-                    $endTime = $startTime->addDay($coupon->days);
-                }
-                $couponUser->fill([
-                    'coupon_id' => $couponId,
-                    'user_id' => $userId,
-                    'startTime' => $startTime,
-                    'endTime' => $endTime,
-                ]);
-               return $couponUser->save();
-
-
+        if ($coupon->total > 0) {
+            $fetchedCount = CouponServices::getInstance()->countCoupon($couponId);
+            if ($fetchedCount >= $coupon->total) {
+                $this->throwBusinessException(CodeResponse::COUPON_EXCEED_LIMIT);
             }
         }
+
+        if ($coupon->limit > 0) {
+            $userFetchedCount = CouponServices::getInstance()->countCouponByUserId($userId, $couponId);
+            if ($userFetchedCount >= $coupon->limit) {
+                $this->throwBusinessException(CodeResponse::COUPON_EXCEED_LIMIT, '优惠券已经领取过');
+            }
+        }
+
+        if ($coupon->type != Constant::Type_COMMON) {
+            $this->throwBusinessException(CodeResponse::COUPON_RECEIVE_FAIL, '优惠券类型不支持');
+        }
+
+        if ($coupon->status == Constant::STATUS_OUT) {
+            $this->throwBusinessException(CodeResponse::COUPON_EXCEED_LIMIT);
+        }
+
+        if ($coupon->status == Constant::STATUS_EXPIRED) {
+            $this->throwBusinessException(CodeResponse::COUPON_RECEIVE_FAIL, '优惠券已经过期');
+        }
+
+        $couponUser = CouponUser::new();
+        if ($coupon->time_type == Constant::TIME_TYPE_TIME) {
+            $startTime = $coupon->start_time;
+            $endTime = $coupon->end_time;
+        } else {
+            $startTime = Carbon::now();
+            $endTime = $startTime->copy()->addDays($coupon->days);
+        }
+
+        $couponUser->fill([
+            'coupon_id' => $couponId,
+            'user_id' => $userId,
+            'start_time' => $startTime,
+            'end_time' => $endTime
+        ]);
+
+        return $couponUser->save();
+    }
+
+
     }

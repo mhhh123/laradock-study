@@ -21,6 +21,7 @@ use Illuminate\Http\JsonResponse;
 class CartController extends WxController
 {
 
+    protected $only = [];
     /**
      * @return JsonResponse
      */
@@ -60,11 +61,10 @@ class CartController extends WxController
      * @throws BusinessException
      */
     public function fastadd(){
-        $goodsId=$this->verifyId('goods_id',0);
-        $productId=$this->verifyId('product_id',0);
-        $number=$this->verifyPositiveInteger('number',0);
-        $cart=CartServices::getInstance()->fastadd($this->userId(),$goodsId,$productId,$number);
-        $count=CartServices::getInstance()->countCartProduct($this->userId());
+        $goodsId = $this->verifyId('goodsId', 0);
+        $productId = $this->verifyId('productId', 0);
+        $number = $this->verifyPositiveInteger('number', 0);
+        $cart = CartServices::getInstance()->fastAdd($this->userId(), $goodsId, $productId, $number);
         return $this->success($cart->id);
     }
 
@@ -72,14 +72,15 @@ class CartController extends WxController
      * @return JsonResponse
      * @throws BusinessException
      */
-   public function add(){
-        $goodsId=$this->verifyId('goods_id',0);
-        $productId=$this->verifyId('product_id',0);
-        $number=$this->verifyPositiveInteger('number',0);
-        CartServices::getInstance()->add($this->userId(),$goodsId,$productId,$number);
-        $count=CartServices::getInstance()->countCartProduct($this->userId());
-        return $this->success($count);
-   }
+     public function add()
+     {
+         $goodsId = $this->verifyId('goodsId', 0);
+         $productId = $this->verifyId('productId', 0);
+         $number = $this->verifyPositiveInteger('number', 0);
+         CartServices::getInstance()->add($this->userId(), $goodsId, $productId, $number);
+         $count = CartServices::getInstance()->countCartProduct($this->userId());
+         return $this->success($count);
+     }
 
    public function goodsCount(){
        $count=CartServices::getInstance()->countCartProduct($this->userId());
@@ -97,14 +98,14 @@ class CartController extends WxController
         $number=$this->verifyPositiveInteger('number',0);
         $cart=CartServices::getInstance()->getCartByid($this->userId(),$id);
         if(is_null($cart)){
-            return $this->fail(CodeResponse::UPDATED_FAIL);
+            return $this->fail(CodeResponse::PARAM_ILLEGAL);
         }
         if ($cart->goods_id!=$goodsId||$cart->product_id!=$productId){
-            return $this->fail(CodeResponse::UPDATED_FAIL);
+            return $this->fail(CodeResponse::PARAM_ILLEGAL);
         }
         $goods=GoodsServices::getInstance()->getGoods($goodsId);
         if (is_null($goods)||!$goods->is_on_sale){
-            return $this->fail(CodeResponse::GOODS_UNSHELVE);
+            return $this->fail(CodeResponse::GOODS_NO_STOCK);
         }
 
         $product=GoodsServices::getInstance()->getGoodsProductByid($productId);
@@ -177,14 +178,14 @@ class CartController extends WxController
             'cartId'=> $cartId,
             'grouponRulesId'=>$grouponRulesId ,
             'grouponPrice'=> $grouponPrice,
-            'checkedAddress'=> $address->toArray(),
+            'checkedAddress'=> $address,
             'availableCouponLength'=> $availableCouponLenth,
             'goodsTotalPrice'=> $checkedGoodsPrice,
             'freightPrice'=> $freightPrice,
             'couponPrice'=> $couponPrice,
             'orderTotalPrice'=> $orderPrice,
             'actualPrice'=> $orderPrice,
-            'checkedGoodsList'=> $checkedGoodsList->toArray(),
+            'checkedGoodsList'=> $checkedGoodsList
        ]);
    }
 

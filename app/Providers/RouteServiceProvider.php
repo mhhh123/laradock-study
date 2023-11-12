@@ -21,7 +21,9 @@ class RouteServiceProvider extends ServiceProvider
 
     public  function map(){
         $this->mapWxRoute();
+
         $this->mapWebRoutes();
+
     }
     /**
      * Define your route model bindings, pattern filters, and other route configuration.

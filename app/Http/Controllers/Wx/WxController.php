@@ -50,8 +50,8 @@ class WxController extends Controller
         return response()->json($ret);
     }
 
-    protected function successpaginate($page){
-        return $this->success($this->paginate($page));
+    protected function successpaginate($page, $list = null){
+        return $this->success($this->paginate($page,$list));
     }
 
     /**

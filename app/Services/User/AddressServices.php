@@ -4,62 +4,70 @@ namespace App\Services\User;
 use App\CodeResponse;
 use App\Exceptions\BusinessException;
 
-use App\Models\Order\Cart;
+use App\Inputs\AddressInput;
+use Illuminate\Database\Eloquent\Builder;
 use App\Models\User\Address;
 use App\Services\BaseServices;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
+
 class AddressServices extends BaseServices
 {
-    /**获取地址或返回默认地址
-     * @param $userId
-     * @param null $addressId
-     * @return mixed|void
-     * @throws BusinessException
-     */
-    public function getAddressOrDefault($userId,$addressId=null){
-        if(empty($addressId)){
-            AddressServices::getInstance()->getDefaultAddress($userId);
-        }else{
-            $address=AddressServices::getInstance()->getAddress($userId,$addressId);
-            if (empty($address)){
-                return $this->throwBusinessException(CodeResponse::PARAM_VALUE_ILLEGAL);
-            }
-        }
-    }
-
-    public function getDefaultAddress($userId){
-        return Address::query()->where('user_id',$userId)
-            ->where('is_default',1)->first();
+    public function getDefaultAddress($userId)
+    {
+        return Address::query()->where('user_id', $userId)
+            ->where('is_default', 1)->first();
     }
 
     /**
+     * 获取地址或者返回默认地址
+     * @param $userId
+     * @param null $addressId
+     * @return Address|Builder|Model|object|null
+     * @throws BusinessException
+     */
+    public function getAddressOrDefault($userId, $addressId = null)
+    {
+        // 获取地址
+        if (empty($addressId)) {
+            $address = AddressServices::getInstance()->getDefaultAddress($userId);
+        } else {
+            $address = AddressServices::getInstance()->getAddress($userId, $addressId);
+            if (empty($address)) {
+                $this->throwBusinessException(CodeResponse::PARAM_VALUE_ILLEGAL);
+            }
+        }
+
+        return $address;
+    }
+
+    /**
+     * 获取地址列表
      * @param int $userId
-     * @return Address|\Illuminate\Database\Eloquent\Builder|Model|object|null
+     * @return \App\Models\User\Address[]|Collection
      */
     public function getAddressListByUserId(int $userId)
     {
-        return Address::query()
-            ->where('user_id', $userId)
-            ->get();
+        return Address::query()->where('user_id', $userId)->get();
     }
 
-
     /**
+     * 获取用户地址
      * @param $userId
      * @param $addressId
-     * @return Address|Model|null
+     * @return \App\Models\User\Address|Model|null
      */
-
-    public function getAddress($userId, $addressId){
+    public function getAddress($userId, int $addressId)
+    {
         return Address::query()
-            ->where('user_id',$userId)
-            ->where('id',$addressId)
+            ->where('user_id', $userId)
+            ->where('id', $addressId)
             ->first();
     }
 
-    /** 删除用户地址
+    /**
+     * 删除地址
      * @param $userId
      * @param $addressId
      * @return bool|null
@@ -67,11 +75,58 @@ class AddressServices extends BaseServices
      */
     public function delete($userId, $addressId)
     {
-        $address=$this->getAddress($userId,$addressId);
-        if (is_null($address)){
-            throw new BusinessException(CodeResponse::PARAM_ILLEGAL);
+        $address = $this->getAddress($userId, $addressId);
+        if (empty($address)) {
+            $this->throwBusinessException(CodeResponse::PARAM_VALUE_ILLEGAL);
         }
+
         return $address->delete();
     }
+
+    /**
+     * 新增/修改地址
+     * @param $userId
+     * @param AddressInput $input
+     * @return Address|Model|null
+     */
+    public function saveAddress($userId, AddressInput $input)
+    {
+        if ($input->id) {
+            $address = AddressServices::getInstance()->getAddress($userId, $input->id);
+        } else {
+            $address = new Address();
+            $address->user_id = $userId;
+        }
+
+
+        if ($input->isDefault) {
+            $this->resetDefault($userId);
+        }
+
+        $address->address_detail = $input->addressDetail;
+        $address->area_code = $input->areaCode;
+        $address->city = $input->city;
+        $address->county = $input->county;
+        $address->is_default = $input->isDefault;
+        $address->name = $input->name;
+        $address->postal_code = $input->postalCode;
+        $address->province =$input->province;
+        $address->tel = $input->tel;
+
+        $address->save();
+        return $address;
+    }
+
+    /**
+     * @param $userId
+     * @return bool|int
+     */
+    public function resetDefault($userId)
+    {
+        return Address::query()->where('user_id', $userId)
+            ->where('is_default', 1)
+            ->update(['is_default' => 0]);
+    }
+
 }
 
